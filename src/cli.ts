@@ -14,17 +14,25 @@ const fileContent = await fs.readFile(inputFile, "utf-8");
 
 const ast = parse(fileContent);
 
-const state = {
-	empty: 0,
-	comment: 0,
-	code: 0,
-};
-for (const node of ast.body) {
-	walkAst(node, state);
-}
+const state = walkAst(ast);
 
 console.log(`
 Blank: ${state.empty}
 Comments: ${state.comment}
 Code: ${state.code}
 Total: ${state.empty + state.comment + state.code}`);
+
+// For multiple files
+// const fileContents: string[] = [];
+// fileContents.reduce(
+// 	(allState, fileContent) => {
+// 		const ast = parse(fileContent);
+// 		const state = walkAst(ast);
+// 		return {
+// 			empty: allState.empty + state.empty,
+// 			comment: allState.comment + state.comment,
+// 			code: allState.code + state.code,
+// 		};
+// 	},
+// 	{ empty: 0, comment: 0, code: 0 },
+// );

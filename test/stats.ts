@@ -31,10 +31,7 @@ for (const dir of directories) {
 			code: number;
 		};
 		const ast = parse(inputCode);
-		const state = { empty: 0, comment: 0, code: 0 };
-		for (const node of ast.body) {
-			walkAst(node, state);
-		}
+		const state = walkAst(ast);
 		assert.deepEqual(state, stats);
 	});
 }
