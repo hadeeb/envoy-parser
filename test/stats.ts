@@ -4,7 +4,7 @@ import test from "node:test";
 import assert from "node:assert";
 
 import { parse } from "../src/parser.ts";
-import { walkAst } from "./walk.ts";
+import { walkAst } from "../src/walk.ts";
 
 // List all directories in the current directory
 const tests = await fs.readdir(new URL(".", import.meta.url).pathname);

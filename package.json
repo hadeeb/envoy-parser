@@ -5,6 +5,7 @@
   "description": "",
   "type": "module",
   "scripts": {
+    "cli": "node --experimental-strip-types ./src/cli.ts",
     "test": "node --experimental-strip-types ./test/main.ts",
     "test:stats": "node --experimental-strip-types ./test/stats.ts"
   },

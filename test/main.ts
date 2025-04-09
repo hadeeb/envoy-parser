@@ -169,6 +169,21 @@ describe("Parser", () => {
 			});
 		});
 
+		test("Single line code block", () => {
+			const code = "{ x = 1; }";
+			const ast = parse(code);
+			assert.deepEqual(ast, {
+				type: "File",
+				body: [
+					{
+						type: "OtherCode",
+						value: "{ x = 1; }",
+						line: 1,
+					},
+				],
+			});
+		});
+
 		test.skip("If checks are falsely parsed as functions", () => {
 			assert.throws(() => {
 				parse(`if (x>y){

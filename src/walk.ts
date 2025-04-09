@@ -1,4 +1,4 @@
-import type { AnyNode } from "../src/types";
+import type { AnyNode } from "./types";
 
 export function walkAst(
 	node: AnyNode,
