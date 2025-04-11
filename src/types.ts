@@ -10,7 +10,8 @@ export type AnyNode =
 	| Comment
 	| OtherCode
 	| EmptyLine
-	| CloseNode;
+	| CloseNode
+	| MultiLineComment;
 
 export type FileNode =
 	| ImportNode
@@ -60,6 +61,11 @@ export interface Comment {
 	type: "Comment";
 	value: string;
 	line: number;
+}
+
+export interface MultiLineComment {
+	type: "MultiLineComment";
+	body: any[];
 }
 
 export interface EmptyLine {

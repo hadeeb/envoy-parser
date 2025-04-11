@@ -8,6 +8,7 @@ const ValidChildren = {
 		"Comment",
 		"EmptyLine",
 		"OtherCode",
+		"MultiLineComment",
 	],
 	ClassNode: ["FunctionNode", "Comment", "EmptyLine", "CloseNode"],
 	FunctionNode: [
@@ -18,6 +19,7 @@ const ValidChildren = {
 		"OtherCode",
 		"CloseNode",
 	],
+	MultiLineComment: ["Comment"],
 } as const;
 
 export function parse(source: string): File {
@@ -27,11 +29,17 @@ export function parse(source: string): File {
 	// Stack to keep track of the current context
 	const contexts: Array<NodeWithBody> = [ast];
 
-	function pushToStack(node: AnyNode) {
+	function getContext() {
 		const currentContext = contexts.at(-1);
 		// This should not happen for valid code
 		if (!currentContext) throw new Error("No current context found");
-
+		return currentContext;
+	}
+	function popStack() {
+		contexts.pop();
+	}
+	function pushToStack(node: AnyNode) {
+		const currentContext = getContext();
 		const validChildren = ValidChildren[currentContext.type];
 		// @ts-expect-error: This is the type validation
 		if (!validChildren.includes(node.type)) {
@@ -43,7 +51,7 @@ export function parse(source: string): File {
 		// @ts-expect-error: Validation is done above
 		currentContext.body.push(node);
 
-		if (node.type === "ClassNode" || node.type === "FunctionNode") {
+		if ("body" in node) {
 			// If the node is a ClassNode or FunctionNode, we need to create a new context
 			contexts.push(node);
 		} else if (node.type === "CloseNode") {
@@ -57,6 +65,28 @@ export function parse(source: string): File {
 
 	lines.forEach((line, index) => {
 		const trimmed = line.trim();
+
+		const currentContext = getContext();
+
+		if (currentContext.type === "MultiLineComment") {
+			pushToStack({
+				type: "Comment",
+				value: trimmed,
+				line: index + 1,
+			});
+			if (trimmed.endsWith("*/")) {
+				popStack();
+			}
+			return;
+		}
+
+		if (trimmed.startsWith("/*")) {
+			pushToStack({
+				type: "MultiLineComment",
+				body: [],
+			});
+			return;
+		}
 
 		// Handle empty line
 		if (trimmed === "") {
@@ -76,7 +106,7 @@ export function parse(source: string): File {
 		}
 
 		// Handle comment
-		if (trimmed.startsWith("//")) {
+		if (trimmed.startsWith("//") || trimmed.startsWith("#")) {
 			pushToStack({
 				type: "Comment",
 				value: trimmed.slice(2).trim(),

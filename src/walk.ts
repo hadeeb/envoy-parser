@@ -22,6 +22,14 @@ function walkAstNode(
 	if (node.type === "EmptyLine") {
 		return { ...state, empty: state.empty + 1 };
 	}
+
+	if (node.type === "MultiLineComment") {
+		const fromBody = node.body.reduce((acc, childNode) => {
+			return walkAstNode(childNode, acc);
+		}, state);
+		return { ...fromBody, comment: fromBody.comment + 1 };
+	}
+
 	if (node.type === "Comment") {
 		return { ...state, comment: state.comment + 1 };
 	}
